@@ -82,12 +82,17 @@ else
 			fi
 		fi
 	else
-		# try vfat only
-		if mount -t vfat -o noatime,shortname=mixed,utf8 "/dev/$1" "/mnt/$1"; then
+		# vfat readonly
+		if mount -r -t vfat -o noatime,shortname=mixed,utf8 "/dev/$1" "/mnt/$1"; then
 			ln -s /mnt/$1 /mnt/$MNT
 			echo "[Mount VFAT]: /dev/$1 --> /mnt/$MNT" > /dev/console
-			echo "$ACT /mnt/$1" >> /tmp/mdev.log		
-        else
+			echo "$ACT /mnt/$1" >> /tmp/mdev.log
+	else
+		if mount -t ext3 "/dev/$1" "/mnt/$1"; then
+			ln -s /mnt/$1 /mnt/$MNT
+			echo "[Mount EXT3]: /dev/$1 --> /mnt/$MNT" > /dev/console
+			echo "$ACT /mnt/$1" >> /tmp/mdev.log
+	else
 			# failed to mount, clean up mountpoint
 			if ! rmdir "/mnt/$1"; then
 				exit 1
